@@ -19,7 +19,7 @@ ui <- fluidPage(
   navbarPage(title = "PhiLab.data/",
         tabPanel("The Dot Perspective Task",
             tags$h1("The Dot Perspective Task"),
-            tags$p("Explore the DPT by selecting instances of the following important variables. For more information about these variables, please read below and review the related ", a(href = "https://doi.org/10.31219/osf.io/zkgyt", "manuscript"), ". For more flexible analyses and additional information about this dataset, please visit this project's", a(href = "https://doi.org/10.7910/DVN/MBRXFK", "Dataverse Repository"), "."),
+            tags$p("Explore the DPT by selecting instances of the following important variables. For more information about these variables, please read below and review the related ", a(href = "https://doi.org/10.31219/osf.io/zkgyt", "manuscript"), ". For more flexible analyses and additional information about this dataset, please visit this project's", a(href = "https://osf.io/preprints/osf/zkgyt", "Dataverse Repository"), "."),
             tags$p("Error or Response Time: Select dependent variable"),
             tags$p("Filter Data: Optionally, select 'Deconfounded Data.' If selected, data in which perspective and directional consistency covary will be filtered out."),
             tags$p("X-Axis: Select primary independent variable"),
