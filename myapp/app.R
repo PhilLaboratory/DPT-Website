@@ -11,6 +11,7 @@ library(rsconnect)
 DPT_Download <- read.csv("Samson_Meta_Analysis_Data_Download.csv")
 DPT_df <- read.csv("Samson_Meta_Analysis_Data_Plot.csv") 
 DPT_df_filtered <- read.csv("Filtered_Samson_Meta_Analysis_Data_Plot.csv")
+DPT_con_incon_data <- read.csv("Con_Incon_Data.csv")
 
 
 # Define UI for application that draws a plot
@@ -20,16 +21,13 @@ ui <- fluidPage(
         tabPanel("The Dot Perspective Task",
             tags$h1("The Dot Perspective Task"),
             tags$p("Explore the DPT by selecting instances of the following important variables. For more information about these variables, please read below and review the related ", a(href = "https://osf.io/preprints/osf/zkgyt", target = "_parent", "manuscript"), ". For more flexible analyses and additional information about this dataset, please visit this project's", a(href = "https://doi.org/10.7910/DVN/MBRXFK", "Dataverse Repository"), "."),
-            tags$p("Error or Response Time: Select dependent variable"),
-            tags$p("Filter Data: Optionally, select 'Deconfounded Data.' If selected, data in which perspective and directional consistency covary will be filtered out."),
-            tags$p("X-Axis: Select primary independent variable"),
-            tags$p("Secondary Comparison: Select secondary independent variable"),
             headerPanel("Explore the DPT"),
             uiOutput("secondSelection"),
             sidebarLayout(
               sidebarPanel(
+                selectInput(inputId = 'self_other', label = "Self or Other:", choices = c("Self" = 1, "Other" = 0)),
                 selectInput(inputId = 'measure', label = "Error or Response Time:", choices = c("Response Time" = "Response Time", "Error" = "Error")),
-                selectInput(inputId = 'filter', label = "Filter Data", choices = c('All Data' = 'all', 'Deconfounded Data' = 'deconfounded')),
+                selectInput(inputId = 'filter', label = "Filter Data", choices = c('Consistent/Inconsistent Data' = 'con_incon', 'All Data' = 'all', 'Deconfounded Data' = 'deconfounded')),
                 selectInput(inputId = 'x_axis', label = 'X-Axis:', 
                         choices = c('Directional Consistency' = "Directional_Consistency", 
                                   'Perspective Consistency' = 'Perspective_Consistency',
@@ -47,13 +45,19 @@ ui <- fluidPage(
             tags$br(),
             tags$p("*Hover over individual points for more informaiton about the data point, and the source publication."),
             tags$p("*Click and drag to zoom in. Double click to zoom back out."),
-            tags$h4("Independent Variables:"),
-            tags$li("Directional Consistency: Consistency between the number of dots a directional stimulus is oriented towards, and the total number of dots within a scene. 'None' when there is no directional stimulus."),
-            tags$li("Perspective Consistency: Consistency between the number of dots visible to an agent, and the total number of dots within the scene. 'None' when there is no agent."),
-            tags$li("Spacial Distribution: Are all dots portrayed in the same location ('together' spacial distribution) or are dots sometimes portrayed in multiple locations or groupings ('varied' spacial distribution). This is determined by experimental stimulus design."), 
-            tags$li("Explicitly Tracking Other: Are participants explicitly asked to attend to the perspective of the 'other' (i.e. the avatar or analogous stimulus)? This occurs when 'self' and 'other' trials are intermixed, when 'other' trials precede 'self' trials, or when participants are otherwise explicitly instructed to track the other's perspective."),
-            tags$li("Time Limit: How long were participants given to respond to each trial (ms)?"),
-            tags$li("Agent: What agent or other object was depicted as the central stimulus? Agent=='avatar' is used for studies directly replicating Samson et al. 2010.")
+            tags$h4("Options"),
+            tags$p(tags$b("Self or Other"),": Is the participant asked to report on their own perspective (self) or that of another agent (other)?"),
+            tags$p(tags$b("Error or Response Time"),": Select dependent variable"),
+            tags$p(tags$b("Filter Data"),": 'Consistent/Inconsistent Data' will display data where a perspective or directional cue is present. 'Deconfounded Data' filters out data in which perspective and directional consistency covary. 'All Data' applies no filter."),
+            tags$p(tags$b("X-Axis"),": Select primary independent variable"),
+            tags$p(tags$b("Secondary Comparison"),": Select secondary independent variable"),
+            tags$h4("Independent Variables"),
+            tags$li(tags$b("Directional Consistency"),": Consistency between the number of dots a directional stimulus is oriented towards, and the total number of dots within a scene. 'None' when there is no directional stimulus."),
+            tags$li(tags$b("Perspective Consistency"),": Consistency between the number of dots visible to an agent, and the total number of dots within the scene. 'None' when there is no agent."),
+            tags$li(tags$b("Spacial Distribution"),": Are all dots portrayed in the same location ('together' spacial distribution) or are dots sometimes portrayed in multiple locations or groupings ('varied' spacial distribution). This is determined by experimental stimulus design."), 
+            tags$li(tags$b("Explicitly Tracking Other"),": Only applies to 'self' trials. Are participants explicitly asked to attend to the perspective of the 'other' (i.e. the avatar or analogous stimulus)? This occurs when 'self' and 'other' trials are intermixed, when 'other' trials precede 'self' trials, or when participants are otherwise explicitly instructed to track the other's perspective."),
+            tags$li(tags$b("Time Limit"),": How long were participants given to respond to each trial (ms)?"),
+            tags$li(tags$b("Agent"),": What agent or other object was depicted as the central stimulus? Agent=='avatar' is used for studies directly replicating Samson et al. 2010.")
               )
           )),
    # tabPanel(title = "Download Materials", 
@@ -163,10 +167,15 @@ ui <- fluidPage(
 server <- function(input, output) {
 
 data <- reactive({
-    if (input$filter == 'all') {
-      filtered_data <- filter(DPT_df, RTorError == input$measure)
+    if (input$filter == 'con_incon') {
+      filtered_data <- filter(DPT_con_incon_data, RTorError == input$measure) %>% 
+        filter(PerspectiveSelf==input$self_other)
+    } else if (input$filter == 'all') {
+      filtered_data <- filter(DPT_df, RTorError == input$measure) %>% 
+        filter(PerspectiveSelf==input$self_other)
     } else {
-      filtered_data <- filter(DPT_df_filtered, RTorError == input$measure)#REVISIT TO FIX
+      filtered_data <- filter(DPT_df_filtered, RTorError == input$measure) %>% 
+        filter(PerspectiveSelf==input$self_other)
     }
     filtered_data
   })
