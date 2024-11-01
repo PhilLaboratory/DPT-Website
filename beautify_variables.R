@@ -76,7 +76,7 @@ pretty_filtered_dataset <- filtered_dataset %>%
 ##Write datasets
 #write_csv(pretty_filtered_dataset, "myapp/Filtered_Samson_Meta_Analysis_Data_Plot.csv")
 #write_csv(pretty_dataset, "myapp/Samson_Meta_Analysis_Data_Plot.csv")
-write_csv(con_incon_data, "myapp/Con_Incon_Data.csv")
+#write_csv(con_incon_data, "myapp/Con_Incon_Data.csv")
 
 #Run: shinylive::export("myapp", "docs") to create docs folder, ready to export.
 
